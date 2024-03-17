@@ -8,6 +8,18 @@ const userSchema = new Schema({
     unique: true,
     trim: true,
   },
+  givenName: {
+    type: String,
+    required: false,
+    unique: false,
+    trim: true,
+  },
+  familyName: {
+    type: String,
+    required: false,
+    unique: false,
+    trim: true,
+  },
   email: {
     type: String,
     required: true,
@@ -19,10 +31,41 @@ const userSchema = new Schema({
     required: true,
     minlength: 5,
   },
-  thoughts: [
+  followers: [
     {
       type: Schema.Types.ObjectId,
-      ref: 'Thought',
+      ref: 'User',
+    },
+  ],
+  groups: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Group',
+    },
+  ],
+
+  country:
+  {
+    type: String,
+    required: false,
+    unique: false,
+    trim: true,
+  },
+
+  skillsOffering: [
+    {
+      type: String,
+      required: false,
+      unique: false,
+      trim: true,
+    },
+  ],
+  skillsInterestedIn: [
+    {
+      type: String,
+      required: false,
+      unique: false,
+      trim: true,
     },
   ],
 });
