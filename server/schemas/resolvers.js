@@ -4,23 +4,17 @@ const { signToken, AuthenticationError } = require('../utils/auth');
 const resolvers = {
   Query: {
     users: async () => {
-      return User.find().populate('thoughts');
+      return User.find().populate('groups');
     },
     user: async (parent, { username }) => {
-      return User.findOne({ username }).populate('thoughts');
+      return User.findOne({ username }).populate('groups');
     },
-    thoughts: async (parent, { username }) => {
+    groups: async (parent, { username }) => {
       const params = username ? { username } : {};
-      return Thought.find(params).sort({ createdAt: -1 });
+      return Group.find(params).sort({ createdAt: -1 });
     },
-    thought: async (parent, { thoughtId }) => {
-      return Thought.findOne({ _id: thoughtId });
-    },
-    me: async (parent, args, context) => {
-      if (context.user) {
-        return User.findOne({ _id: context.user._id }).populate('thoughts');
-      }
-      throw AuthenticationError;
+    group: async (parent, { groupId }) => {
+      return Group.findOne({ _id: groupId });
     },
   },
 
@@ -47,29 +41,13 @@ const resolvers = {
 
       return { token, user };
     },
-    addThought: async (parent, { thoughtText }, context) => {
+    addGroup: async (parent, { name }, context) => {
       if (context.user) {
-        const thought = await Thought.create({
-          thoughtText,
-          thoughtAuthor: context.user.username,
-        });
-
-        await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $addToSet: { thoughts: thought._id } }
-        );
-
-        return thought;
-      }
-      throw AuthenticationError;
-    },
-    addComment: async (parent, { thoughtId, commentText }, context) => {
-      if (context.user) {
-        return Thought.findOneAndUpdate(
-          { _id: thoughtId },
+        const user = await User.findOneAndUpdate(
+          { _id: userId },
           {
             $addToSet: {
-              comments: { commentText, commentAuthor: context.user.username },
+              groups: {group: context.group.name},
             },
           },
           {
@@ -77,39 +55,17 @@ const resolvers = {
             runValidators: true,
           }
         );
+        return user;
       }
       throw AuthenticationError;
     },
-    removeThought: async (parent, { thoughtId }, context) => {
+    removeGroup: async (parent, { groupId }, context) => {
       if (context.user) {
-        const thought = await Thought.findOneAndDelete({
-          _id: thoughtId,
-          thoughtAuthor: context.user.username,
-        });
-
         await User.findOneAndUpdate(
           { _id: context.user._id },
-          { $pull: { thoughts: thought._id } }
+          { $pull: { groups: groupId } }
         );
-
-        return thought;
-      }
-      throw AuthenticationError;
-    },
-    removeComment: async (parent, { thoughtId, commentId }, context) => {
-      if (context.user) {
-        return Thought.findOneAndUpdate(
-          { _id: thoughtId },
-          {
-            $pull: {
-              comments: {
-                _id: commentId,
-                commentAuthor: context.user.username,
-              },
-            },
-          },
-          { new: true }
-        );
+        return user;
       }
       throw AuthenticationError;
     },
