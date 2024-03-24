@@ -2,24 +2,20 @@ const typeDefs = `
   type User {
     _id: ID
     username: String
+    givenName: String
+    familyName: String
     email: String
     password: String
-    thoughts: [Thought]!
+    followers: [User]
+    groups: [Group]
+    country: String
+    skillsOffering: String
+    skillsInterestedIn: String
   }
 
-  type Thought {
+  type Group {
     _id: ID
-    thoughtText: String
-    thoughtAuthor: String
-    createdAt: String
-    comments: [Comment]!
-  }
-
-  type Comment {
-    _id: ID
-    commentText: String
-    commentAuthor: String
-    createdAt: String
+    name: String
   }
 
   type Auth {
@@ -30,19 +26,23 @@ const typeDefs = `
   type Query {
     users: [User]
     user(username: String!): User
-    thoughts(username: String): [Thought]
-    thought(thoughtId: ID!): Thought
-    me: User
+    groups: [Group]
+    group(name: String!): Group
   }
 
   type Mutation {
     addUser(username: String!, email: String!, password: String!): Auth
+    updateUser(_id: ID!, username: String, email: String, country: String, skillsOffering: String, skillsInterestedIn: String): User 
+    deleteUser(_id: ID!): Boolean
     login(email: String!, password: String!): Auth
-    addThought(thoughtText: String!): Thought
-    addComment(thoughtId: ID!, commentText: String!): Thought
-    removeThought(thoughtId: ID!): Thought
-    removeComment(thoughtId: ID!, commentId: ID!): Thought
+    addGroup(name: String!): User
+    removeGroup(name: String!): User
+    addFollower(_id: ID!): User
+    deleteFollower(_id: ID!): User
   }
 `;
 
 module.exports = typeDefs;
+
+
+//? updated user Auth??
