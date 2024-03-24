@@ -41,6 +41,54 @@ const resolvers = {
 
       return { token, user };
     },
+    updateUser: async (_, { _id, username, email, country, skillsOffering, skillsInterestedIn }, context) => {
+      if (context.user) {
+        const updateFields = {};
+        if (username) updateFields.username = username;
+        if (email) updateFields.email = email;
+        if (familyName) updateFields.country = country;
+        if (familyName) updateFields.skillsOffering = skillsOffering;
+        if (familyName) updateFields.skillsInterestedIn = skillsInterestedIn;
+    
+        const updatedUser = await User.findByIdAndUpdate(
+          _id,
+          updateFields,
+          { new: true, runValidators: true }
+        );
+    
+        if (!updatedUser) {
+          throw new Error('User not found!');
+        }
+    
+        return updatedUser;
+      }
+    
+      throw new AuthenticationError('Unauthorized');
+    },
+    deleteUser: async (parent, { userId }) => {
+      try {
+        const deletedUser = await User.findByIdAndDelete(userId);
+        
+        if (deletedUser) {
+          return true;
+        } else {
+          return false;
+        }
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        return false;
+      }
+    // deleteUser: async (_, { _id }, context) => {
+    //   if (context.user) {
+    //     const deletedUser = await User.findByIdAndDelete(_id);
+    //     if (!deletedUser) {
+    //       throw new Error('User not found!');
+    //     }
+    //     return true; // Return true if deletion is successful
+    //   }
+    //   throw new AuthenticationError('Unauthorized');
+    // },
+    },
     addGroup: async (parent, { name }, context) => {
       if (context.user) {
         const user = await User.findOneAndUpdate(
@@ -68,6 +116,44 @@ const resolvers = {
         return user;
       }
       throw AuthenticationError;
+    },
+    addFollower: async (_, { _id }, context) => {
+      if (context.user) {
+        const user = await User.findOneAndUpdate(
+          { _id },
+          {
+            $addToSet: {
+              followers: context._id,
+            },
+          },
+          {
+            new: true,
+            runValidators: true,
+          }
+        );
+        return user;
+      }
+      throw AuthenticationError;
+    },
+    deleteFollower: async (_, { _id }, context) => {
+      if (context.user) {
+        const user = await User.findOneAndUpdate(
+          { _id: context.user._id }, // Assuming context.user contains the authenticated user's data
+          {
+            $pull: {
+              followers: _id, // Remove the specified follower ID from the followers array
+            },
+          },
+          {
+            new: true,
+            runValidators: true,
+          }
+        );
+    
+        return user;
+      }
+    
+      throw new AuthenticationError('Unauthorized');
     },
   },
 };
