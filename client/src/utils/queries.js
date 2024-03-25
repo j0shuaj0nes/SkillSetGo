@@ -5,56 +5,49 @@ export const QUERY_USER = gql`
     user(username: $username) {
       _id
       username
+      givenName
+      familyName
       email
-      thoughts {
+      country
+      skillsOffering
+      skillsInterestedIn
+      groups {
         _id
-        thoughtText
-        createdAt
+        name
       }
     }
   }
 `;
 
-export const QUERY_THOUGHTS = gql`
-  query getThoughts {
-    thoughts {
+export const QUERY_GROUPS = gql`
+  query getGroups {
+    groups {
       _id
-      thoughtText
-      thoughtAuthor
-      createdAt
+      name
     }
   }
 `;
 
-export const QUERY_SINGLE_THOUGHT = gql`
-  query getSingleThought($thoughtId: ID!) {
-    thought(thoughtId: $thoughtId) {
+export const QUERY_SINGLE_GROUP = gql`
+  query getSingleGroup($groupid: ID!) {
+    thought(groupid: $groupid) {
       _id
-      thoughtText
-      thoughtAuthor
-      createdAt
-      comments {
-        _id
-        commentText
-        commentAuthor
-        createdAt
-      }
+      name
     }
   }
 `;
 
-export const QUERY_ME = gql`
-  query me {
-    me {
-      _id
-      username
-      email
-      thoughts {
-        _id
-        thoughtText
-        thoughtAuthor
-        createdAt
-      }
-    }
-  }
-`;
+// export const QUERY_ME = gql`
+//   query me {
+//     me {
+//       _id
+//       username
+//       email
+//       groups {
+//         _id
+//         name
+//       }
+//     }
+//   }
+// `;
+

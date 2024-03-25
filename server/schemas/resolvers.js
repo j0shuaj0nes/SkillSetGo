@@ -78,45 +78,44 @@ const resolvers = {
         console.error('Error deleting user:', error);
         return false;
       }
-    // deleteUser: async (_, { _id }, context) => {
-    //   if (context.user) {
-    //     const deletedUser = await User.findByIdAndDelete(_id);
-    //     if (!deletedUser) {
-    //       throw new Error('User not found!');
-    //     }
-    //     return true; // Return true if deletion is successful
-    //   }
-    //   throw new AuthenticationError('Unauthorized');
-    // },
     },
-    addGroup: async (parent, { name }, context) => {
-      if (context.user) {
-        const user = await User.findOneAndUpdate(
-          { _id: userId },
-          {
-            $addToSet: {
-              groups: {group: context.group.name},
-            },
-          },
-          {
-            new: true,
-            runValidators: true,
-          }
+    joinGroup: async (_, { userId, groupId }) => {
+      try {
+        const group = await Group.findByIdAndUpdate(
+          groupId,
+          { $addToSet: { members: userId } },
+          { new: true }
         );
-        return user;
+
+        if (!group) {
+          throw new Error('Group not found!');
+        }
+
+        return group;
+      } catch (error) {
+        throw new Error(error.message);
       }
-      throw AuthenticationError;
     },
-    removeGroup: async (parent, { groupId }, context) => {
-      if (context.user) {
-        await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $pull: { groups: groupId } }
+
+    leaveGroup: async (_, { userId, groupId }) => {
+      try {
+        // Find the group by ID and remove the user from the members array
+        const group = await Group.findByIdAndUpdate(
+          groupId,
+          { $pull: { members: userId } },
+          { new: true }
         );
-        return user;
+
+        if (!group) {
+          throw new Error('Group not found!');
+        }
+
+        return group;
+      } catch (error) {
+        throw new Error(error.message);
       }
-      throw AuthenticationError;
     },
+    
     addFollower: async (_, { _id }, context) => {
       if (context.user) {
         const user = await User.findOneAndUpdate(
@@ -135,6 +134,7 @@ const resolvers = {
       }
       throw AuthenticationError;
     },
+    
     deleteFollower: async (_, { _id }, context) => {
       if (context.user) {
         const user = await User.findOneAndUpdate(
@@ -159,3 +159,44 @@ const resolvers = {
 };
 
 module.exports = resolvers;
+
+ // deleteUser: async (_, { _id }, context) => {
+    //   if (context.user) {
+    //     const deletedUser = await User.findByIdAndDelete(_id);
+    //     if (!deletedUser) {
+    //       throw new Error('User not found!');
+    //     }
+    //     return true; // Return true if deletion is successful
+    //   }
+    //   throw new AuthenticationError('Unauthorized');
+    // },
+  
+  // addGroup: async (parent, { name }, context) => {
+  //   if (context.user) {
+  //     const user = await User.findOneAndUpdate(
+  //       { _id: userId },
+  //       {
+  //         $addToSet: {
+  //           groups: {group: context.group.name},
+  //         },
+  //       },
+  //       {
+  //         new: true,
+  //         runValidators: true,
+  //       }
+  //     );
+  //     return user;
+  //   }
+  //   throw AuthenticationError;
+  // },
+
+  // removeGroup: async (parent, { groupId }, context) => {
+  //   if (context.user) {
+  //     await User.findOneAndUpdate(
+  //       { _id: context.user._id },
+  //       { $pull: { groups: groupId } }
+  //     );
+  //     return user;
+  //   }
+  //   throw AuthenticationError;
+  // },
